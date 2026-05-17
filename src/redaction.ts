@@ -93,13 +93,13 @@ function buildRules(cwd: string | undefined, customPatterns: CustomPattern[]): R
     }
   ];
 
+  if (cwd) {
+    rules.push(...pathRules(path.resolve(cwd), '<CWD>', 'cwd'));
+  }
+
   const home = os.homedir();
   if (home) {
     rules.push(...pathRules(home, '<HOME>', 'home'));
-  }
-
-  if (cwd) {
-    rules.push(...pathRules(path.resolve(cwd), '<CWD>', 'cwd'));
   }
 
   rules.push(...pathRules(os.tmpdir(), '<TMP>', 'temp'));
