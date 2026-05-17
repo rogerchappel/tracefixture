@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "tool": {
+    "name": "tracefixture",
+    "version": "0.1.0"
+  },
+  "command": {
+    "argv": [
+      "node",
+      "fixtures/examples/hello-command.mjs"
+    ],
+    "display": "node fixtures/examples/hello-command.mjs"
+  },
+  "cwdLabel": "<REPO>",
+  "recordedAt": "2026-05-17T12:30:00.000Z",
+  "durationMs": 10,
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "hello from tracefixture\n",
+  "stderr": "",
+  "files": [],
+  "redactions": [],
+  "normalizers": [
+    "trim-trailing-space",
+    "normalize-newlines",
+    "collapse-duration-ms"
+  ]
+}
