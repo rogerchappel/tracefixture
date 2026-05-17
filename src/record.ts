@@ -38,9 +38,12 @@ export async function recordTrace(options: RecordOptions): Promise<TraceFixture>
     stderr: stderr.value,
     files: captured.files,
     redactions: mergeRedactions([stdout.entries, stderr.entries, ...captured.redactions]),
-    normalizers: [...NORMALIZERS],
-    notes: options.notes
+    normalizers: [...NORMALIZERS]
   };
+
+  if (options.notes) {
+    fixture.notes = options.notes;
+  }
 
   await writeJson(options.out, fixture);
   return fixture;

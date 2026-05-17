@@ -47,12 +47,15 @@ export function redactText(input: string, options: { cwd?: string; customPattern
     });
 
     if (count > 0) {
-      entries.push({
+      const entry: RedactionEntry = {
         kind: rule.kind,
-        label: rule.label,
         replacement: rule.replacement,
         count
-      });
+      };
+      if (rule.label) {
+        entry.label = rule.label;
+      }
+      entries.push(entry);
     }
   }
 

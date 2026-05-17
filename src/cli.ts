@@ -33,15 +33,19 @@ program
       throw new TracefixtureError('record requires a command after --, for example: tracefixture record --out fixtures/demo.json -- node --version');
     }
 
-    const fixture = await recordTrace({
+    const recordOptions = {
       out: String(options.out),
       argv,
       cwd: path.resolve(String(options.cwd)),
       cwdLabel: String(options.cwdLabel),
       capturePaths: options.capture as string[],
-      customPatterns: (options.redactPattern as string[]).map(parseCustomPattern),
-      notes: typeof options.notes === 'string' ? options.notes : undefined
-    });
+      customPatterns: (options.redactPattern as string[]).map(parseCustomPattern)
+    };
+    if (typeof options.notes === 'string') {
+      Object.assign(recordOptions, { notes: options.notes });
+    }
+
+    const fixture = await recordTrace(recordOptions);
 
     console.log(JSON.stringify({
       ok: true,
@@ -82,10 +86,8 @@ program
   .argument('<fixture>', 'Fixture JSON path')
   .option('--markdown <path>', 'Write Markdown to a file instead of only stdout')
   .action(async (fixturePath: string, options: Record<string, unknown>) => {
-    const markdown = await renderTrace({
-      fixturePath,
-      markdown: typeof options.markdown === 'string' ? options.markdown : undefined
-    });
+    const renderOptions = typeof options.markdown === 'string' ? { fixturePath, markdown: options.markdown } : { fixturePath };
+    const markdown = await renderTrace(renderOptions);
 
     if (!options.markdown) {
       process.stdout.write(markdown);
