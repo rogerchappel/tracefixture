@@ -1,0 +1,33 @@
+{
+  "project": "tracefixture",
+  "kind": "oss-cli",
+  "packageManager": "npm",
+  "node": ">=20",
+  "primaryVerification": "bash scripts/validate.sh",
+  "commands": {
+    "install": "npm install",
+    "check": "npm run check",
+    "test": "npm test",
+    "build": "npm run build",
+    "smoke": "npm run smoke",
+    "validate": "bash scripts/validate.sh"
+  },
+  "artifacts": {
+    "fixtures": "fixtures/examples",
+    "temporaryFixtures": "fixtures/tmp",
+    "distribution": "dist"
+  },
+  "github": {
+    "owner": "rogerchappel",
+    "repo": "tracefixture",
+    "visibility": "public",
+    "defaultBranch": "main",
+    "topics": [
+      "cli",
+      "fixtures",
+      "snapshot-testing",
+      "typescript",
+      "testing-tools"
+    ]
+  }
+}
