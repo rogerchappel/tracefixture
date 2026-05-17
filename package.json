@@ -3,20 +3,51 @@
   "version": "0.1.0",
   "description": "Record and replay CLI command traces as redacted fixtures.",
   "type": "module",
-  "main": "./src/index.js",
+  "bin": {
+    "tracefixture": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./dist/index.js"
   },
   "files": [
-    "src",
+    "dist",
     "README.md"
   ],
   "scripts": {
-    "test": "node --test",
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "smoke": "bash scripts/smoke.sh",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm test && npm run package:smoke"
+    "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke"
   },
-  "keywords": [],
+  "keywords": [
+    "cli",
+    "fixtures",
+    "snapshot",
+    "testing",
+    "trace",
+    "redaction"
+  ],
   "author": "Roger Chappel",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/tracefixture.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/tracefixture/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/tracefixture#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
 }
