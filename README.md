@@ -9,19 +9,28 @@ security posture before using it in production.
 
 ## Install
 
-Replace this section with the generated repository's installation steps.
-
 ```sh
-pnpm install
+npm install
+npm run build
 ```
 
 ## Use
 
-Replace this section with the smallest useful example for the generated
-repository.
+Record a command into a redacted JSON fixture, replay it, and render the fixture
+as Markdown for docs:
 
 ```sh
-pnpm dev
+node dist/cli.js record --out fixtures/tmp/demo.json --cwd . --cwd-label '<REPO>' -- node scripts/demo-command.mjs
+node dist/cli.js replay fixtures/tmp/demo.json --cwd .
+node dist/cli.js render fixtures/tmp/demo.json --markdown fixtures/tmp/demo.md
+```
+
+After publishing, use the package binary:
+
+```sh
+tracefixture record --out fixtures/smoke/demo.json -- npm test
+tracefixture replay fixtures/smoke/demo.json
+tracefixture render fixtures/smoke/demo.json --markdown docs/demo.md
 ```
 
 ## Verify
@@ -29,6 +38,11 @@ pnpm dev
 Run the local validation script before opening a pull request:
 
 ```sh
+npm test
+npm run check
+npm run build
+npm run smoke
+npm run package:smoke
 bash scripts/validate.sh
 ```
 
@@ -41,10 +55,7 @@ should be small, reviewable, and verified before review.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Replace
-the default security policy before publishing the generated repository.
-
-These links assume this README has been copied to the generated repository root.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
 
 ## License
 
