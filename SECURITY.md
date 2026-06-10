@@ -2,18 +2,10 @@
 
 ## Supported Versions
 
-Replace this section with the supported versions for `tracefixture`.
-
-Example:
-
-```md
 | Version | Supported |
 | --- | --- |
-| .x | Yes |
-| < .0 | No |
-```
-
-If the project does not publish versioned releases yet, say that clearly.
+| Unreleased `main` | Best-effort security fixes before the first stable release |
+| Published tags | No supported versioned release has been published yet |
 
 ## Reporting a Vulnerability
 
