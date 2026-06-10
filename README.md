@@ -48,6 +48,12 @@ bash scripts/validate.sh
 
 `scripts/validate.sh` runs the repository's standard local checks when they are defined and will also run `agent-qc ready` when `agent-qc` is installed. Missing `agent-qc` is treated as a skip, not a failure.
 
+## Package contents
+
+The npm package ships the compiled CLI plus README, license, changelog,
+contribution guide, and security policy. Check the exact tarball contents with
+`npm run package:smoke` before publishing.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution expectations. Changes
