@@ -13,7 +13,7 @@
 - `npm run check` - TypeScript typecheck without emitting files.
 - `npm test` - Build and run node:test coverage.
 - `npm run build` - Emit `dist/`.
-- `npm run smoke` - Record, replay, and render a real local fixture.
+- `npm run smoke` - Record, inspect, replay, and render a real local fixture.
 - `bash scripts/validate.sh` - Repository-level validation gate.
 
 ## Agent Notes
@@ -21,4 +21,5 @@
 - Do not commit local secrets in fixtures.
 - Prefer `--cwd-label '<REPO>'` in checked-in examples.
 - Use `--redact-pattern label=pattern=replacement` for project-specific volatile output.
+- Use `tracefixture inspect <fixture>` before replaying third-party or stale fixtures.
 - Replay executes the recorded command, so inspect third-party fixtures before running them.
