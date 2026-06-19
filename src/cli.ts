@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import path from 'node:path';
 import { recordTrace } from './record.js';
 import { parseCustomPattern } from './redaction.js';
+import { formatInspection, inspectTrace } from './inspect.js';
 import { formatReplayReport, replayTrace } from './replay.js';
 import { renderTrace } from './render.js';
 import { TracefixtureError } from './types.js';
@@ -56,6 +57,16 @@ program
       files: fixture.files.length
     }, null, 2));
     process.exitCode = fixture.exitCode ?? 1;
+  });
+
+program
+  .command('inspect')
+  .description('Summarize a fixture without replaying its command.')
+  .argument('<fixture>', 'Fixture JSON path')
+  .option('--json', 'Emit JSON instead of text')
+  .action(async (fixturePath: string, options: Record<string, unknown>) => {
+    const inspection = await inspectTrace(fixturePath);
+    console.log(options.json ? JSON.stringify(inspection, null, 2) : formatInspection(inspection));
   });
 
 program
