@@ -9,6 +9,7 @@
 - [x] Redact home paths, cwd paths, temp paths, timestamps, env secrets, and custom patterns.
 - [x] Implement `replay <fixture>` with stable output comparison and readable diffs.
 - [x] Implement `render <fixture> --markdown <file>` for docs snippets.
+- [x] Implement `inspect <fixture>` for replay-free fixture summaries.
 - [x] Add fixture-backed tests and CLI smoke coverage.
 - [x] Write practical README, contribution, and security docs.
 

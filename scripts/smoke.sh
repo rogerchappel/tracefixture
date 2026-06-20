@@ -14,6 +14,7 @@ node dist/cli.js record \
   --capture fixtures/tmp/demo-output.txt \
   -- node scripts/demo-command.mjs
 
+node dist/cli.js inspect fixtures/tmp/demo.json
 node dist/cli.js replay fixtures/tmp/demo.json --cwd "$repo_root"
 node dist/cli.js render fixtures/tmp/demo.json --markdown fixtures/tmp/demo.md
 test -s fixtures/tmp/demo.md
