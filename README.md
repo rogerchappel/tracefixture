@@ -26,6 +26,13 @@ node dist/cli.js replay fixtures/tmp/demo.json --cwd .
 node dist/cli.js render fixtures/tmp/demo.json --markdown fixtures/tmp/demo.md
 ```
 
+For a disposable end-to-end demo that records a checked-in command, replays it,
+and renders Markdown, run:
+
+```sh
+bash demo/run-fixture-docs.sh
+```
+
 After publishing, use the package binary:
 
 ```sh
