@@ -1,48 +1,77 @@
-# tracefixture
+# tracefixture Agent Skill
 
-Use this skill when an agent needs to turn a CLI behavior into a reusable, redacted fixture for tests, documentation, release notes, or regression checks.
+Use this skill when an agent needs to record, inspect, replay, or render a deterministic CLI trace fixture without leaking local paths or secrets.
 
 ## When To Use
 
-- A README or docs example should be backed by an executable command trace.
-- A CLI smoke test should be replayable without relying on memory or chat logs.
-- A failing or passing command should be shared with output redaction and stable normalization.
-- A release candidate needs fixture evidence for command behavior.
+- After adding or changing a CLI smoke command.
+- When README examples should be backed by executable command evidence.
+- Before a release-candidate PR that needs proof of local command behavior.
+- When an agent should compare a current command run against a checked-in fixture.
 
 ## Required Inputs
 
-- A local command to record.
-- A fixture output path.
-- Optional file paths to capture after the command runs.
-- Optional custom redaction patterns for repo-specific sensitive values.
+- A local repository checkout.
+- A command that can run non-interactively.
+- An output fixture path under the repo, usually `fixtures/`.
+- Optional capture paths for files the command writes.
 
-## Side Effects
+## Tools
 
-`tracefixture record` runs the requested local command and writes a JSON fixture. It may also capture selected file contents after the command. `tracefixture replay` reruns the recorded command locally. `tracefixture render` writes Markdown when `--markdown` is provided. The tool does not upload traces or call hosted services.
+- Shell access for the command being recorded or replayed.
+- Filesystem read/write access for fixture and rendered Markdown files.
+- No network access is required by `tracefixture` itself.
 
-## Approval Boundaries
+## Side-Effect Boundaries
 
-Ask for approval before recording or replaying commands that publish, deploy, send messages, mutate external accounts, or destroy data. Prefer dry-run, fixture, and local test commands.
+- `record` executes the command supplied after `--`; review that command before running it.
+- `inspect` and `render` read an existing fixture and do not re-run the recorded command.
+- `replay` executes the fixture command again in the requested working directory.
+- Do not record commands that require credentials, publish packages, deploy services, or mutate external accounts.
 
-## Examples
+## Approval Requirements
+
+- Ask before running any recorded or replayed command that writes outside the repo, deletes files, installs packages globally, or contacts external services.
+- Ask before replacing a checked-in fixture when the new output changes public docs or release evidence.
+- Ask before adding custom redaction patterns that could hide meaningful failure output.
+
+## Workflow
+
+1. Inspect the command and classify its side effects.
+2. Record a fixture with stable labels:
+
+   ```bash
+   tracefixture record --out fixtures/smoke/demo.json --cwd . --cwd-label '<REPO>' -- npm run smoke
+   ```
+
+3. Inspect the fixture without re-running the command:
+
+   ```bash
+   tracefixture inspect fixtures/smoke/demo.json
+   ```
+
+4. Replay when command side effects are approved:
+
+   ```bash
+   tracefixture replay fixtures/smoke/demo.json --cwd .
+   ```
+
+5. Render docs evidence:
+
+   ```bash
+   tracefixture render fixtures/smoke/demo.json --markdown docs/demo-trace.md
+   ```
+
+## Validation
+
+Run these checks after changing trace behavior, docs, or this skill:
 
 ```bash
-tracefixture record --out fixtures/smoke/demo.json --capture output.txt -- npm run smoke
-tracefixture inspect fixtures/smoke/demo.json
-tracefixture replay fixtures/smoke/demo.json
-tracefixture render fixtures/smoke/demo.json --markdown docs/examples/demo.md
+npm test
+npm run check
+npm run build
+npm run smoke
+npm run package:smoke
+bash scripts/validate.sh
 ```
 
-## Validation Workflow
-
-1. Record the fixture from a deterministic command.
-2. Inspect the fixture and review redactions, captured files, exit code, and output size.
-3. Replay the fixture from a clean working tree.
-4. Render a Markdown snippet when the fixture supports docs or release notes.
-5. Run repository checks before sharing: `npm test`, `npm run check`, `npm run smoke`, and `bash scripts/validate.sh`.
-
-## Safety Notes
-
-- Fixture output may include secrets printed by the child command; review fixtures before committing them.
-- Custom redaction patterns should be named clearly so reviewers can see what was removed.
-- Replays execute the recorded command, so do not replay fixtures from untrusted sources without inspection.
