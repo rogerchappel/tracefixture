@@ -3,7 +3,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { inspectFixture, recordTrace, replayTrace, renderTrace } from '../dist/index.js';
+import { formatInspection, inspectTrace, recordTrace, replayTrace, renderTrace } from '../dist/index.js';
 
 test('records and replays a command with captured files', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-test-'));
@@ -35,10 +35,6 @@ test('records and replays a command with captured files', async () => {
   assert.match(markdown, /Trace fixture:/);
   assert.equal((await readFile(markdownPath, 'utf8')), markdown);
 
-  const summary = await inspectFixture(fixturePath);
-  assert.equal(summary.command, `${process.execPath} writer.mjs`);
-  assert.equal(summary.capturedFiles, 1);
-  assert.equal(summary.redactionCount > 0, true);
 });
 
 test('reports replay mismatches', async () => {
@@ -58,4 +54,33 @@ test('reports replay mismatches', async () => {
   const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
   assert.equal(replay.ok, false);
   assert.equal(replay.mismatches[0].field, 'stdout');
+});
+
+test('inspects fixture summary without replaying command', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-inspect-'));
+  await writeFile(path.join(dir, 'writer.mjs'), [
+    "import { writeFileSync } from 'node:fs';",
+    "writeFileSync('captured.txt', 'secret-123\\n');",
+    "console.log('hello secret-123');"
+  ].join('\n'));
+
+  const fixturePath = path.join(dir, 'fixture.json');
+  await recordTrace({
+    out: fixturePath,
+    argv: [process.execPath, 'writer.mjs'],
+    cwd: dir,
+    cwdLabel: '<TEST>',
+    capturePaths: ['captured.txt', 'missing.txt'],
+    customPatterns: [{ label: 'demo-secret', pattern: /secret-\d+/g, replacement: '<SECRET>' }]
+  });
+
+  const inspection = await inspectTrace(fixturePath);
+  const text = formatInspection(inspection);
+
+  assert.equal(inspection.files.total, 2);
+  assert.equal(inspection.files.present, 1);
+  assert.equal(inspection.files.missing, 1);
+  assert.equal(inspection.redactions.byKind.custom, 2);
+  assert.match(text, /redactions: 2/);
+  assert.match(text, /files: 1\/2 present/);
 });

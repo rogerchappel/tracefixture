@@ -35,6 +35,10 @@ tracefixture replay fixtures/smoke/demo.json
 tracefixture render fixtures/smoke/demo.json --markdown docs/demo.md
 ```
 
+## Agent Skill
+
+See [SKILL.md](SKILL.md) for when an agent should record or replay a trace fixture, which side effects require approval, and how to validate fixture evidence.
+
 ## Verify
 
 Run the local validation script before opening a pull request:
