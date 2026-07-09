@@ -21,6 +21,7 @@ as Markdown for docs:
 
 ```sh
 node dist/cli.js record --out fixtures/tmp/demo.json --cwd . --cwd-label '<REPO>' -- node scripts/demo-command.mjs
+node dist/cli.js inspect fixtures/tmp/demo.json
 node dist/cli.js replay fixtures/tmp/demo.json --cwd .
 node dist/cli.js render fixtures/tmp/demo.json --markdown fixtures/tmp/demo.md
 ```
@@ -29,6 +30,7 @@ After publishing, use the package binary:
 
 ```sh
 tracefixture record --out fixtures/smoke/demo.json -- npm test
+tracefixture inspect fixtures/smoke/demo.json --json
 tracefixture replay fixtures/smoke/demo.json
 tracefixture render fixtures/smoke/demo.json --markdown docs/demo.md
 ```
