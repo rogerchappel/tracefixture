@@ -6,6 +6,7 @@ export { recordTrace } from './record.js';
 export { mergeRedactions, parseCustomPattern, redactText } from './redaction.js';
 export { formatReplayReport, replayTrace } from './replay.js';
 export { fixtureToMarkdown, renderTrace } from './render.js';
+export { formatFixtureSummary, inspectFixture, summarizeFixture } from './inspect.js';
 export type {
   CapturedFile,
   CustomPattern,

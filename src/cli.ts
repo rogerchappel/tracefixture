@@ -5,6 +5,7 @@ import { recordTrace } from './record.js';
 import { parseCustomPattern } from './redaction.js';
 import { formatReplayReport, replayTrace } from './replay.js';
 import { renderTrace } from './render.js';
+import { formatFixtureSummary, inspectFixture } from './inspect.js';
 import { TracefixtureError } from './types.js';
 import { VERSION } from './version.js';
 
@@ -93,6 +94,20 @@ program
       process.stdout.write(markdown);
     } else {
       console.log(JSON.stringify({ ok: true, markdown: options.markdown }, null, 2));
+    }
+  });
+
+program
+  .command('inspect')
+  .description('Summarize a trace fixture without replaying its command.')
+  .argument('<fixture>', 'Fixture JSON path')
+  .option('--json', 'Emit a JSON summary')
+  .action(async (fixturePath: string, options: Record<string, unknown>) => {
+    const summary = await inspectFixture(fixturePath);
+    if (options.json) {
+      console.log(JSON.stringify(summary, null, 2));
+    } else {
+      process.stdout.write(formatFixtureSummary(summary));
     }
   });
 

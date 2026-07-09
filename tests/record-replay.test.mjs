@@ -3,7 +3,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { recordTrace, replayTrace, renderTrace } from '../dist/index.js';
+import { inspectFixture, recordTrace, replayTrace, renderTrace } from '../dist/index.js';
 
 test('records and replays a command with captured files', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-test-'));
@@ -34,6 +34,11 @@ test('records and replays a command with captured files', async () => {
   const markdown = await renderTrace({ fixturePath, markdown: markdownPath });
   assert.match(markdown, /Trace fixture:/);
   assert.equal((await readFile(markdownPath, 'utf8')), markdown);
+
+  const summary = await inspectFixture(fixturePath);
+  assert.equal(summary.command, `${process.execPath} writer.mjs`);
+  assert.equal(summary.capturedFiles, 1);
+  assert.equal(summary.redactionCount > 0, true);
 });
 
 test('reports replay mismatches', async () => {
