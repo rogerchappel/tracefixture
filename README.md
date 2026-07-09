@@ -37,7 +37,7 @@ After publishing, use the package binary:
 
 ```sh
 tracefixture record --out fixtures/smoke/demo.json -- npm test
-tracefixture inspect fixtures/smoke/demo.json
+tracefixture inspect fixtures/smoke/demo.json --json
 tracefixture replay fixtures/smoke/demo.json
 tracefixture render fixtures/smoke/demo.json --markdown docs/demo.md
 ```

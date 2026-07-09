@@ -34,6 +34,7 @@ test('records and replays a command with captured files', async () => {
   const markdown = await renderTrace({ fixturePath, markdown: markdownPath });
   assert.match(markdown, /Trace fixture:/);
   assert.equal((await readFile(markdownPath, 'utf8')), markdown);
+
 });
 
 test('reports replay mismatches', async () => {
