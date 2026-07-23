@@ -38,8 +38,8 @@ export async function captureFiles(
       files.push({
         path: relativePath,
         exists: true,
-        size: Buffer.byteLength(raw),
-        sha256: createHash('sha256').update(raw).digest('hex'),
+        size: Buffer.byteLength(redacted.value),
+        sha256: createHash('sha256').update(redacted.value).digest('hex'),
         content: redacted.value
       });
     } catch (error) {
