@@ -37,6 +37,60 @@ test('records and replays a command with captured files', async () => {
 
 });
 
+test('replays captured files using their redacted identity', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-redacted-file-'));
+  await writeFile(path.join(dir, 'writer.mjs'), [
+    "import { existsSync, writeFileSync } from 'node:fs';",
+    "const timestamp = existsSync('recorded')",
+    "  ? '2026-05-18T12:30:00.000Z'",
+    "  : '2026-05-17T12:30:00.000Z';",
+    "writeFileSync('recorded', 'yes');",
+    "writeFileSync('out.txt', `created at ${timestamp}\\n`);"
+  ].join('\n'));
+
+  const fixturePath = path.join(dir, 'fixture.json');
+  const fixture = await recordTrace({
+    out: fixturePath,
+    argv: [process.execPath, 'writer.mjs'],
+    cwd: dir,
+    cwdLabel: '<TEST>',
+    capturePaths: ['out.txt'],
+    customPatterns: []
+  });
+
+  const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
+
+  assert.equal(fixture.files[0].content, 'created at <TIMESTAMP>\n');
+  assert.equal(replay.ok, true);
+});
+
+test('reports genuine captured file content changes', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-file-mismatch-'));
+  await writeFile(path.join(dir, 'writer.mjs'), [
+    "import { existsSync, writeFileSync } from 'node:fs';",
+    "const status = existsSync('recorded') ? 'failed' : 'passed';",
+    "writeFileSync('recorded', 'yes');",
+    "writeFileSync('out.txt', `status: ${status}\\n`);"
+  ].join('\n'));
+
+  const fixturePath = path.join(dir, 'fixture.json');
+  await recordTrace({
+    out: fixturePath,
+    argv: [process.execPath, 'writer.mjs'],
+    cwd: dir,
+    cwdLabel: '<TEST>',
+    capturePaths: ['out.txt'],
+    customPatterns: []
+  });
+
+  const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
+
+  assert.equal(replay.ok, false);
+  assert.equal(replay.mismatches[0].field, 'files');
+  assert.match(replay.mismatches[0].expected, /status: passed/);
+  assert.match(replay.mismatches[0].actual, /status: failed/);
+});
+
 test('reports replay mismatches', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-mismatch-'));
   await writeFile(path.join(dir, 'say.mjs'), "console.log('first');\n");
