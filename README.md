@@ -42,6 +42,11 @@ tracefixture replay fixtures/smoke/demo.json
 tracefixture render fixtures/smoke/demo.json --markdown docs/demo.md
 ```
 
+Captured files are compared using their redacted representation. Their
+`content`, `size`, and `sha256` fields describe the text after built-in and
+custom redactions, so replay ignores changes hidden by those redactions while
+still reporting unredacted content changes as a `files` mismatch.
+
 ## Agent Skill
 
 See [SKILL.md](SKILL.md) for when an agent should record or replay a trace fixture, which side effects require approval, and how to validate fixture evidence.
