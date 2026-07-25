@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
+import { Command, CommanderError } from 'commander';
 import path from 'node:path';
 import { recordTrace } from './record.js';
 import { parseCustomPattern } from './redaction.js';
@@ -117,12 +117,12 @@ try {
     process.exit(error.exitCode);
   }
 
-  if (error instanceof Error && 'exitCode' in error) {
-    throw error;
+  if (error instanceof CommanderError) {
+    process.exitCode = error.exitCode;
+  } else {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
   }
-
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
 }
 
 function collect(value: string, previous: string[]): string[] {
