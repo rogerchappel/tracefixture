@@ -7,6 +7,10 @@ format and uses semantic versioning when versioned releases are published.
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep `--help` and `--version` exits successful while reporting CLI usage errors without stack traces.
+
 ### Added
 
 - Initial project setup.
