@@ -3,7 +3,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { formatInspection, inspectTrace, recordTrace, replayTrace, renderTrace } from '../dist/index.js';
+import { formatInspection, formatReplayReport, inspectTrace, recordTrace, replayTrace, renderTrace } from '../dist/index.js';
 
 test('records and replays a command with captured files', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-test-'));
@@ -24,6 +24,7 @@ test('records and replays a command with captured files', async () => {
   });
 
   assert.equal(fixture.exitCode, 0);
+  assert.equal(fixture.signal, null);
   assert.match(fixture.stdout, /hello <CWD>/);
   assert.equal(fixture.files[0].content, 'created at <TIMESTAMP>\n');
 
@@ -35,6 +36,47 @@ test('records and replays a command with captured files', async () => {
   assert.match(markdown, /Trace fixture:/);
   assert.equal((await readFile(markdownPath, 'utf8')), markdown);
 
+});
+
+test('accepts a matching non-null termination signal', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-signal-match-'));
+  await writeFile(path.join(dir, 'terminate.mjs'), "process.kill(process.pid, 'SIGTERM');\n");
+  const fixturePath = path.join(dir, 'fixture.json');
+  const fixture = await recordTrace({
+    out: fixturePath,
+    argv: [process.execPath, 'terminate.mjs'],
+    cwd: dir,
+    cwdLabel: '<TEST>',
+    capturePaths: [],
+    customPatterns: []
+  });
+
+  const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
+
+  assert.equal(fixture.exitCode, null);
+  assert.equal(fixture.signal, 'SIGTERM');
+  assert.equal(replay.ok, true);
+});
+
+test('reports a termination signal mismatch', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-signal-mismatch-'));
+  await writeFile(path.join(dir, 'terminate.mjs'), "process.kill(process.pid, 'SIGTERM');\n");
+  const fixturePath = path.join(dir, 'fixture.json');
+  const fixture = await recordTrace({
+    out: fixturePath,
+    argv: [process.execPath, 'terminate.mjs'],
+    cwd: dir,
+    cwdLabel: '<TEST>',
+    capturePaths: [],
+    customPatterns: []
+  });
+  await writeFile(fixturePath, JSON.stringify({ ...fixture, signal: 'SIGINT' }, null, 2) + '\n');
+
+  const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
+
+  assert.equal(replay.ok, false);
+  assert.deepEqual(replay.mismatches, [{ field: 'signal', expected: 'SIGINT', actual: 'SIGTERM' }]);
+  assert.match(formatReplayReport(replay), /^tracefixture replay failed\n\nMismatch: signal/m);
 });
 
 test('replays captured files using their redacted identity', async () => {
