@@ -47,6 +47,10 @@ Captured files are compared using their redacted representation. Their
 custom redactions, so replay ignores changes hidden by those redactions while
 still reporting unredacted content changes as a `files` mismatch.
 
+Replay also verifies how the command terminated. Both `exitCode` and `signal`
+must match the recorded fixture, including `null` values; a different
+termination signal is reported as a `signal` mismatch.
+
 ## Agent Skill
 
 See [SKILL.md](SKILL.md) for when an agent should record or replay a trace fixture, which side effects require approval, and how to validate fixture evidence.
