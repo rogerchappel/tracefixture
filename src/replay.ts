@@ -36,6 +36,14 @@ export async function replayTrace(options: ReplayOptions): Promise<ReplayResult>
     });
   }
 
+  if (fixture.signal !== result.signal) {
+    mismatches.push({
+      field: 'signal',
+      expected: String(fixture.signal),
+      actual: String(result.signal)
+    });
+  }
+
   if (fixture.stdout !== stdout) {
     mismatches.push({
       field: 'stdout',
