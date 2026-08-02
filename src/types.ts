@@ -74,7 +74,7 @@ export type RunResult = {
 };
 
 export type ReplayMismatch = {
-  field: 'exitCode' | 'stdout' | 'stderr' | 'files';
+  field: 'exitCode' | 'signal' | 'stdout' | 'stderr' | 'files';
   expected: string;
   actual: string;
 };
