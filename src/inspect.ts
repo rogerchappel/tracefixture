@@ -1,5 +1,4 @@
-import { readJson } from './files.js';
-import { assertFixture } from './fixture.js';
+import { readFixture } from './fixture.js';
 import type { TraceFixture } from './types.js';
 
 export type FixtureInspection = {
@@ -25,9 +24,7 @@ export type FixtureInspection = {
 };
 
 export async function inspectTrace(fixturePath: string): Promise<FixtureInspection> {
-  const loaded = await readJson<unknown>(fixturePath);
-  assertFixture(loaded);
-  return summarizeFixture(loaded);
+  return summarizeFixture(await readFixture(fixturePath));
 }
 
 export function summarizeFixture(fixture: TraceFixture): FixtureInspection {

@@ -51,6 +51,12 @@ still reporting unredacted content changes as a `files` mismatch.
 
 See [SKILL.md](SKILL.md) for when an agent should record or replay a trace fixture, which side effects require approval, and how to validate fixture evidence.
 
+## Fixture validation
+
+`inspect`, `replay`, and `render` validate the complete schema-v1 fixture before using it. Invalid JSON and invalid fields exit non-zero with a field-specific diagnostic instead of a Node.js stack trace.
+
+A schema-v1 fixture requires `tool` (`name`, `version`), `command` (a non-empty `argv` array of non-empty strings and `display`), `cwdLabel`, `recordedAt`, `durationMs`, `exitCode`, `signal`, `stdout`, `stderr`, and the `files`, `redactions`, and `normalizers` arrays. File entries require `path`, `exists`, and `size`; redaction entries require a supported `kind`, `replacement`, and non-negative integer `count`. Optional `sha256`, `content`, `label`, and `notes` values must be strings when present.
+
 ## Verify
 
 Run the local validation script before opening a pull request:

@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { captureFiles, readJson } from './files.js';
-import { assertFixture } from './fixture.js';
+import { captureFiles } from './files.js';
+import { readFixture } from './fixture.js';
 import { formatDiff } from './diff.js';
 import { normalizeOutput } from './normalizers.js';
 import { redactText } from './redaction.js';
@@ -14,9 +14,7 @@ export type ReplayResult = {
 };
 
 export async function replayTrace(options: ReplayOptions): Promise<ReplayResult> {
-  const loaded = await readJson<unknown>(options.fixturePath);
-  assertFixture(loaded);
-  const fixture = loaded;
+  const fixture = await readFixture(options.fixturePath);
   const cwd = path.resolve(options.cwd ?? process.cwd());
   const result = await runCommand(fixture.command.argv, cwd);
   const stdout = redactText(normalizeOutput(result.stdout), {

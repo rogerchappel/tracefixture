@@ -1,6 +1,6 @@
 export { formatDiff } from './diff.js';
 export { captureFiles, readJson, writeJson } from './files.js';
-export { assertFixture } from './fixture.js';
+export { assertFixture, readFixture } from './fixture.js';
 export { formatInspection, inspectTrace, summarizeFixture } from './inspect.js';
 export { NORMALIZERS, normalizeCommandDisplay, normalizeOutput } from './normalizers.js';
 export { recordTrace } from './record.js';
