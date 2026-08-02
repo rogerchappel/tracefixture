@@ -1,12 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { readJson } from './files.js';
-import { assertFixture } from './fixture.js';
+import { readFixture } from './fixture.js';
 import type { RenderOptions, TraceFixture } from './types.js';
 
 export async function renderTrace(options: RenderOptions): Promise<string> {
-  const loaded = await readJson<unknown>(options.fixturePath);
-  assertFixture(loaded);
+  const loaded = await readFixture(options.fixturePath);
   const markdown = fixtureToMarkdown(loaded);
 
   if (options.markdown) {
