@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -150,6 +151,43 @@ test('reports replay mismatches', async () => {
   const replay = await replayTrace({ fixturePath, cwd: dir, customPatterns: [] });
   assert.equal(replay.ok, false);
   assert.equal(replay.mismatches[0].field, 'stdout');
+});
+
+test('CLI requires recorded custom patterns before replaying stdout and captured files', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tracefixture-custom-replay-'));
+  await writeFile(path.join(dir, 'writer.mjs'), [
+    "import { appendFileSync, writeFileSync } from 'node:fs';",
+    "appendFileSync('runs.txt', 'run\\n');",
+    "writeFileSync('captured.txt', 'file secret-123\\n');",
+    "console.log('stdout secret-123');"
+  ].join('\n'));
+
+  const cli = path.resolve('dist/cli.js');
+  const fixturePath = path.join(dir, 'fixture.json');
+  const pattern = 'demo-secret=secret-\\d+=<SECRET>';
+  const recorded = spawnSync(process.execPath, [
+    cli, 'record', '--out', fixturePath, '--cwd', dir,
+    '--capture', 'captured.txt', '--redact-pattern', pattern,
+    '--', process.execPath, 'writer.mjs'
+  ], { encoding: 'utf8' });
+
+  assert.equal(recorded.status, 0, recorded.stderr);
+  const fixture = JSON.parse(await readFile(fixturePath, 'utf8'));
+  assert.equal(fixture.stdout, 'stdout <SECRET>\n');
+  assert.equal(fixture.files[0].content, 'file <SECRET>\n');
+
+  const missing = spawnSync(process.execPath, [cli, 'replay', fixturePath, '--cwd', dir], { encoding: 'utf8' });
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /Replay requires custom redaction pattern\(s\).*demo-secret/);
+  assert.match(missing.stderr, /--redact-pattern label=pattern=replacement/);
+  assert.equal(await readFile(path.join(dir, 'runs.txt'), 'utf8'), 'run\n');
+
+  const replayed = spawnSync(process.execPath, [
+    cli, 'replay', fixturePath, '--cwd', dir, '--redact-pattern', pattern
+  ], { encoding: 'utf8' });
+  assert.equal(replayed.status, 0, replayed.stderr);
+  assert.match(replayed.stdout, /tracefixture replay ok/);
+  assert.equal(await readFile(path.join(dir, 'runs.txt'), 'utf8'), 'run\nrun\n');
 });
 
 test('inspects fixture summary without replaying command', async () => {
