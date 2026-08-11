@@ -51,6 +51,20 @@ Replay also verifies how the command terminated. Both `exitCode` and `signal`
 must match the recorded fixture, including `null` values; a different
 termination signal is reported as a `signal` mismatch.
 
+Custom redaction patterns are not stored in schema-v1 fixtures because their
+regular expressions can contain sensitive values. Repeat each named pattern
+when replaying; tracefixture stops before running the command and lists any
+missing labels:
+
+```sh
+tracefixture record --out fixtures/smoke/demo.json --redact-pattern 'account=acct-[0-9]+=<ACCOUNT>' -- npm test
+tracefixture replay fixtures/smoke/demo.json --redact-pattern 'account=acct-[0-9]+=<ACCOUNT>'
+```
+
+Keep reusable pattern definitions in a safe, reviewed project script when they
+should not be copied by hand. Existing schema-v1 fixtures without custom
+redactions replay unchanged.
+
 ## Agent Skill
 
 See [SKILL.md](SKILL.md) for when an agent should record or replay a trace fixture, which side effects require approval, and how to validate fixture evidence.

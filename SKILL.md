@@ -56,6 +56,18 @@ Use this skill when an agent needs to record, inspect, replay, or render a deter
    tracefixture replay fixtures/smoke/demo.json --cwd .
    ```
 
+   If recording used custom patterns, repeat every named pattern on replay:
+
+   ```bash
+   tracefixture record --out fixtures/smoke/demo.json --redact-pattern 'account=acct-[0-9]+=<ACCOUNT>' -- npm run smoke
+   tracefixture replay fixtures/smoke/demo.json --redact-pattern 'account=acct-[0-9]+=<ACCOUNT>'
+   ```
+
+   Schema-v1 fixtures retain the custom labels but not their regular
+   expressions. Replay reports missing labels and exits before executing the
+   command. Put reusable invocations in a reviewed local script when manually
+   repeating patterns would be error-prone.
+
 5. Render docs evidence:
 
    ```bash
@@ -74,4 +86,3 @@ npm run smoke
 npm run package:smoke
 bash scripts/validate.sh
 ```
-

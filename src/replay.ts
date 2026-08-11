@@ -5,7 +5,7 @@ import { formatDiff } from './diff.js';
 import { normalizeOutput } from './normalizers.js';
 import { redactText } from './redaction.js';
 import { runCommand } from './run.js';
-import type { ReplayMismatch, ReplayOptions, TraceFixture } from './types.js';
+import { TracefixtureError, type CustomPattern, type ReplayMismatch, type ReplayOptions, type TraceFixture } from './types.js';
 
 export type ReplayResult = {
   ok: boolean;
@@ -15,6 +15,7 @@ export type ReplayResult = {
 
 export async function replayTrace(options: ReplayOptions): Promise<ReplayResult> {
   const fixture = await readFixture(options.fixturePath);
+  assertCustomPatternsSupplied(fixture, options.customPatterns);
   const cwd = path.resolve(options.cwd ?? process.cwd());
   const result = await runCommand(fixture.command.argv, cwd);
   const stdout = redactText(normalizeOutput(result.stdout), {
@@ -75,6 +76,24 @@ export async function replayTrace(options: ReplayOptions): Promise<ReplayResult>
     fixture,
     mismatches
   };
+}
+
+function assertCustomPatternsSupplied(fixture: TraceFixture, supplied: CustomPattern[]): void {
+  const suppliedLabels = new Set(supplied.map((pattern) => pattern.label));
+  const requiredLabels = fixture.redactions
+    .filter((entry) => entry.kind === 'custom' && entry.label)
+    .map((entry) => entry.label as string);
+  const missingLabels = [...new Set(requiredLabels.filter((label) => !suppliedLabels.has(label)))].sort();
+
+  if (missingLabels.length === 0) {
+    return;
+  }
+
+  throw new TracefixtureError([
+    `Replay requires custom redaction pattern(s) recorded by this fixture: ${missingLabels.join(', ')}.`,
+    'Supply each pattern again with --redact-pattern label=pattern=replacement.',
+    `Example: tracefixture replay <fixture> ${missingLabels.map((label) => `--redact-pattern '${label}=<regex>=<replacement>'`).join(' ')}`
+  ].join('\n'));
 }
 
 export function formatReplayReport(result: ReplayResult): string {
