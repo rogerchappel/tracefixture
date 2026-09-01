@@ -94,7 +94,10 @@ bash scripts/validate.sh
 
 The npm package ships the compiled CLI plus README, license, changelog,
 contribution guide, and security policy. Check the exact tarball contents with
-`npm run package:smoke` before publishing.
+`npm run package:smoke` before publishing. The command exports a clean checkout,
+builds and packs it, verifies the declared entry points and documentation in the
+tarball, then installs that exact artifact and exercises its CLI in an isolated
+consumer directory.
 
 ## Contributing
 
