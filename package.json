@@ -25,7 +25,7 @@
     "check": "tsc --noEmit",
     "smoke": "bash scripts/smoke.sh",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "bash scripts/package-smoke.sh",
     "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke"
   },
   "keywords": [
